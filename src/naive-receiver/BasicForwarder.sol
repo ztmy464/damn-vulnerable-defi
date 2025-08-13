@@ -51,7 +51,10 @@ contract BasicForwarder is EIP712 {
         address signer = ECDSA.recover(_hashTypedData(getDataHash(request)), signature);
         if (signer != request.from) revert InvalidSigner();
     }
-
+    
+    //~ 这里将execute 交易放到了 这个本该单独处理EIP712 的合约中，
+    //~ 只是为了使 sg.sender == trustedForwarder 顺理成章 exploit issue 2
+    //~ 执行交易可以在其它合约内进行，此合约只需提供 check/recover 函数 验证签名
     function execute(Request calldata request, bytes calldata signature) public payable returns (bool success) {
         _checkRequest(request, signature);
 

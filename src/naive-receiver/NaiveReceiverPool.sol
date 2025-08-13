@@ -84,9 +84,12 @@ contract NaiveReceiverPool is Multicall, IERC3156FlashLender {
     }
 
     function _msgSender() internal view override returns (address) {
+        // ----------------------- @audit-issue 2 control the message data ----------------------- 
+        //~ we can craft msg through trustedForwarder and control the message data
         if (msg.sender == trustedForwarder && msg.data.length >= 20) {
             return address(bytes20(msg.data[msg.data.length - 20:]));
         } else {
+            //~ original message.sender of the transaction
             return super._msgSender();
         }
     }

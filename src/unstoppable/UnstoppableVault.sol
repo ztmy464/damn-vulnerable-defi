@@ -72,6 +72,10 @@ contract UnstoppableVault is IERC3156FlashLender, ReentrancyGuard, Owned, ERC462
         return asset.balanceOf(address(this));
     }
 
+/* 
+  @ztmy ERC4626 (Tokenized Vaults)
+  
+ */
     /**
      * @inheritdoc IERC3156FlashLender
      */
@@ -82,6 +86,8 @@ contract UnstoppableVault is IERC3156FlashLender, ReentrancyGuard, Owned, ERC462
         if (amount == 0) revert InvalidAmount(0); // fail early
         if (address(asset) != _token) revert UnsupportedCurrency(); // enforce ERC3156 requirement
         uint256 balanceBefore = totalAssets();
+        //~ 检查 Vault 的总Assets 是否与 shares 的总供应量对应的Assets匹配  
+        //~ totalSupply.mulDivDown(totalSupply, totalAssets()) = totalAssets()
         if (convertToShares(totalSupply) != balanceBefore) revert InvalidBalance(); // enforce ERC4626 requirement
 
         // transfer tokens out + execute callback on receiver

@@ -33,6 +33,13 @@ contract NaiveReceiverChallenge is Test {
      */
     function setUp() public {
         (player, playerPk) = makeAddrAndKey("player");
+        //~ startHoax(address) ：
+            /* 
+            // 相当于：
+                // deal(deployer, type(uint256).max); // 给足够多的 ETH
+                // startPrank(deployer);
+            // 还给该地址分配了私钥，方便模拟签名交易
+             */
         startHoax(deployer);
 
         // Deploy WETH
@@ -77,6 +84,25 @@ contract NaiveReceiverChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_naiveReceiver() public checkSolvedByPlayer {
+        // --------------- assemble calldatas [1-10,11] -----------------
+
+            //~ exploit issue 1
+            //~ Multicall [1-10]: 
+            //~ call onFlashLoan 10 times to drain receiver balance to pool
+            
+            //~ exploit issue 2
+            //~ Multicall [11]: 
+            //~ call withdraw to drain the pool
+        
+        // --------------------- encode into Multicall ---------------------
+
+
+        // ----------------- EIP712 transaction step：struct/hash/sign ------------------
+        
+
+
+
+        // --------------- let forwarder execute it ----------------
         
     }
 
