@@ -3,21 +3,30 @@
 
 ---
 ### 2	Naive receiver
-pre： flash loan, EIP712, multi-call
 
-audit：access control , message data
+functionality:  LenderPool that offer a flashloan supports meta-transactions
+
+pre：           flash loan, EIP712, multi-call
+
+audit:          access control , message data
+
+mitigation:     
 
 TODO: 看懂了，之后把code写上
 
 ---
 ### 3	Truster
-pre： functionCall 
 
-audit: Arbitrary External Call
+functionality:  LenderPool that offer a flashloan
 
-mitigation: follow ERC-3156
+pre：           functionCall
+
+audit:          Arbitrary External Call
+
+mitigation:     follow ERC-3156
 
 #### The method of invoking a function of a contract：  
+
  - interface invoke
  - call  ——> functionCall (OpenZeppelin)
     - abi.encodeWithSelector / abi.encodeWithSignature (create calldata, not call)
@@ -41,9 +50,46 @@ bytes memory data = abi.encodeWithSignature();
 ---
 ### 4	Side Entrance
 
+functionality:  Pool allow deposit and withdraw then offer a flashloan
+
+pre：           
+
+audit:          use balance to check repay
+
+mitigation:     
 
 ---
 ### 5	The Rewarder 
+
+functionality:  Distributor token to Rewarder
+
+pre：           Merkle,  bitmap
+
+audit:          pass malicious data to function (duplication in array)
+
+mitigation:     follow ERC-3156
+
+1. use bitmap 标记 msg.sender 的批次领取状态
+
+```solidity
+//~ q 什么是 batchNumber
+    //~ 唯一标识这笔奖励属于哪个批次
+
+//~ q 什么是 wordPosition 和 bitPosition 
+    //~ 把批次编号映射到 bitmap
+    
+/* eg:*/
+    batchNumber = 777
+    wordPosition = 777 / 256 = 3
+    → 落在 第 3 组（表示批次 768–1023）
+
+    bitPosition = 777 % 256 = 9
+    → 在第 3 组里的第 9 个 bit 位
+
+    distributions[token].claims[msg.sender][3] = bitPosition(第 9 个 bit = 1)
+    distributions[token].claims[msg.sender][wordPosition] = bitPosition
+    
+```
 
 
 ---

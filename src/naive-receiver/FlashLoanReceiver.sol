@@ -13,7 +13,7 @@ contract FlashLoanReceiver is IERC3156FlashBorrower {
     }
 
     // ------------------- @audit-issue 1 access control problem ------------------- 
-    // ~it ignores the first address which is essentially the initiator of the flash loan
+    //~ it ignores the first address which is essentially the initiator of the flash loan
     //~ This means anyone can request flash loans on behalf of this contract and make it pay the fee to the pool
 
     //~ exploit this we can drain user contract balance(this)

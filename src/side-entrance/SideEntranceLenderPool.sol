@@ -36,7 +36,7 @@ contract SideEntranceLenderPool {
         uint256 balanceBefore = address(this).balance;
 
         IFlashLoanEtherReceiver(msg.sender).execute{value: amount}();
-
+        //~ @audit use balance to check repay
         if (address(this).balance < balanceBefore) {
             revert RepayFailed();
         }
