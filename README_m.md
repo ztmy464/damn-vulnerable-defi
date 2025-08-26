@@ -8,7 +8,7 @@ functionality:  LenderPool that offer a flashloan supports meta-transactions
 
 pre：           flash loan, EIP712, multi-call
 
-audit:          access control , message data
+**audit**:      access control , message data
 
 mitigation:     
 
@@ -21,7 +21,7 @@ functionality:  LenderPool that offer a flashloan
 
 pre：           functionCall
 
-audit:          Arbitrary External Call
+**audit**:      Arbitrary External Call
 
 mitigation:     follow ERC-3156
 
@@ -54,7 +54,7 @@ functionality:  Pool allow deposit and withdraw then offer a flashloan
 
 pre：           
 
-audit:          use balance to check repay
+**audit**:      use balance to check repay
 
 mitigation:     
 
@@ -65,9 +65,9 @@ functionality:  Distributor token to Rewarder
 
 pre：           Merkle,  bitmap
 
-audit:          pass malicious data to function (duplication in array)
+**audit**:      pass malicious data to function (duplication in array)
 
-mitigation:     follow ERC-3156
+mitigation:
 
 1. use bitmap 标记 msg.sender 的批次领取状态
 
@@ -95,7 +95,33 @@ mitigation:     follow ERC-3156
 ---
 ### 6	Selfie
 
+functionality:  A pool with voting/governance tokens that offers a flashloan.
 
+pre：           ERC-3156, ERC20Votes
+
+**audit**:      The token that is offered to loan has some functionality.(voting/governance token)
+
+mitigation:     
+
+#### ERC20Votes：
+Extension of ERC-20 to support Compound-like voting and delegation.
+see OpenZeppelin `ERC20Votes.sol` and `Votes.sol` 
+
+#### different ways to do flashloan：  
+
+```solidity
+
+ 1. target.functionCall(data);
+
+ 2. ERC-3156
+    function onFlashLoan(
+        address _initiator,
+        address _token,
+        uint256 _amount,
+        uint256 _fee,
+        bytes calldata /*_data*/
+    ) external returns (bytes32)
+```
 ---
 ### 7	Compromised
 

@@ -19,7 +19,7 @@ contract SimpleGovernance is ISimpleGovernance {
         _votingToken = votingToken;
         _actionCounter = 1;
     }
-
+    //~ add a action to queue 
     function queueAction(address target, uint128 value, bytes calldata data) external returns (uint256 actionId) {
         if (!_hasEnoughVotes(msg.sender)) {
             revert NotEnoughVotes(msg.sender);
@@ -49,7 +49,7 @@ contract SimpleGovernance is ISimpleGovernance {
 
         emit ActionQueued(actionId, msg.sender);
     }
-
+    //~ execute a Action 
     function executeAction(uint256 actionId) external payable returns (bytes memory) {
         if (!_canBeExecuted(actionId)) {
             revert CannotExecute(actionId);
@@ -91,12 +91,13 @@ contract SimpleGovernance is ISimpleGovernance {
 
         uint64 timeDelta;
         unchecked {
+            //~ > 0
             timeDelta = uint64(block.timestamp) - actionToExecute.proposedAt;
         }
 
         return actionToExecute.executedAt == 0 && timeDelta >= ACTION_DELAY_IN_SECONDS;
     }
-
+    //~ vote power can be delegated, no nead to hold the vote token
     function _hasEnoughVotes(address who) private view returns (bool) {
         uint256 balance = _votingToken.getVotes(who);
         uint256 halfTotalSupply = _votingToken.totalSupply() / 2;

