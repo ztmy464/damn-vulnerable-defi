@@ -6,7 +6,7 @@
 
 functionality:  LenderPool that offer a flashloan supports meta-transactions
 
-pre：           flash loan, EIP712, multi-call
+prep：          flash loan, EIP712, multi-call
 
 **audit**:      access control , message data
 
@@ -19,7 +19,7 @@ TODO: 看懂了，之后把code写上
 
 functionality:  LenderPool that offer a flashloan
 
-pre：           functionCall
+prep：          functionCall
 
 **audit**:      Arbitrary External Call
 
@@ -52,7 +52,7 @@ bytes memory data = abi.encodeWithSignature();
 
 functionality:  Pool allow deposit and withdraw then offer a flashloan
 
-pre：           
+prep：          
 
 **audit**:      use balance to check repay
 
@@ -63,7 +63,7 @@ mitigation:
 
 functionality:  Distributor token to Rewarder
 
-pre：           Merkle,  bitmap
+prep：          Merkle,  bitmap
 
 **audit**:      pass malicious data to function (duplication in array)
 
@@ -97,7 +97,7 @@ mitigation:
 
 functionality:  A pool with voting/governance tokens that offers a flashloan.
 
-pre：           ERC-3156, ERC20Votes
+prep：          ERC-3156, ERC20Votes
 
 **audit**:      The token that is offered to loan has some functionality.(voting/governance token)
 
@@ -125,6 +125,29 @@ see OpenZeppelin `ERC20Votes.sol` and `Votes.sol`
 ---
 ### 7	Compromised
 
+functionality:  A exchange selling “DVNFT” fetched price from an oracle
+
+prep：          oracle, ERC721
+
+**audit**:      leak private key
+
+mitigation:     
+
+#### safeMint：
+
+ - `ERC721.safeMint(to, tokenId)` not only mint the NFT, but also checks whether the recipient can safely receive the NFT.
+ - If the recipient is an EOA, it will succeed directly;
+ - If the recipient is a contract, it must correctly implement the IERC721Receiver interface and return the standard magic value;
+```solidity
+    function onERC721Received(
+        address /*operator*/,
+        address /*from*/,
+        uint256 /*tokenId*/,
+        bytes calldata /*data*/
+    ) external pure returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+```
 
 ---
 ### 8	Puppet
